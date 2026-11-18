@@ -60,15 +60,15 @@ class ConfigTest extends TestCase {
         $tolouFile = $rootDir . '/banner_' . $brand . '.json';
         $this->assertTrue(file_exists($tolouFile), "banner_tolou.json must exist in root");
         $tolouJson = json_decode(file_get_contents($tolouFile), true);
-        $this->assertArrayHasKey('title', $tolouJson);
-        $this->assertStringContainsString('ایرانیان', $tolouJson['title']);
+        $this->assertArrayHasKey('text', $tolouJson);
+        $this->assertStringContainsString('طلوع چت', $tolouJson['text']);
 
         $brand = 'golabi';
         $golabiFile = $rootDir . '/banner_' . $brand . '.json';
         $this->assertTrue(file_exists($golabiFile), "banner_golabi.json must exist in root");
         $golabiJson = json_decode(file_get_contents($golabiFile), true);
-        $this->assertArrayHasKey('title', $golabiJson);
-        $this->assertStringContainsString('چت روم', $golabiJson['title']);
+        $this->assertArrayHasKey('text', $golabiJson);
+        $this->assertStringContainsString('چت گلابی', $golabiJson['text']);
     }
 
     public function testDynamicUploadUrlGeneration(): void {
