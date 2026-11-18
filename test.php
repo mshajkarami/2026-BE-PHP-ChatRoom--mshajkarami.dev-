@@ -105,6 +105,12 @@ try {
     // تست ۱۰: تست بن
     echo "<h2>✅ تست ۱۰: بن</h2>";
     echo "<p>کاربر 999999 بن هست؟ " . (isBanned('999999') ? "✅ بله" : "❌ نه") . "</p>";
+
+    // پاکسازی رکورد‌های تستی
+    $db->prepare("DELETE FROM messages WHERE user_code = '999999'")->execute();
+    $db->prepare("DELETE FROM anti_shoot WHERE user_code = '999999'")->execute();
+    $db->prepare("DELETE FROM users WHERE user_code = '999999'")->execute();
+    echo "<p>🧹 رکوردهای تستی با موفقیت پاکسازی شدند.</p>";
     
     echo "<hr>";
     echo "<h2 style='color:green'>🎉 همه تست‌ها موفق!</h2>";
