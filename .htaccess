@@ -1,0 +1,11 @@
+# Disable directory browsing
+Options -Indexes
+
+# Protect hidden files and configs
+<FilesMatch "^\.|\.(env|sql|log|bak|git)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Enable UTF-8 encoding
+AddDefaultCharset UTF-8

@@ -1,0 +1,24 @@
+# Local environment and secret configs
+.env
+.env.local
+config.local.php
+
+# Uploads directory (keep directory with .gitkeep)
+uploads/*
+!uploads/.gitkeep
+
+# Dumps, backups and archives
+*.sql.gz
+*.zip
+*.bak
+*.tar.gz
+
+# Logs
+*.log
+error_log
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
