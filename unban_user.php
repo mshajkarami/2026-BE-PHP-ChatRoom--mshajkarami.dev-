@@ -9,26 +9,35 @@ requirePost();
 
 $input = getInput();
 
-$userCode = $input['user_code'] ?? '';
-$adminCode = $input['admin_code'] ?? '';
+$userCode = trim((string)($input['user_code'] ?? ''));
+$adminCode = trim((string)($input['admin_code'] ?? ''));
 
 if (empty($userCode) || empty($adminCode)) {
     sendJSON([
         'success' => false,
-        'message' => 'user_code and admin_code are required'
+        'message' => 'کد کاربر و کد مدیر الزامی است.'
     ]);
 }
 
 // چک مدیر بودن
 $admin = getUser($adminCode);
-if (!$admin || ((int)($admin['rank_num'] ?? 0) < 1 && $adminCode !== '1')) {
+$adminRank = (int)($admin['rank_num'] ?? 0);
+$isOwner = ($adminCode === '1' || (isset($admin['is_owner']) && $admin['is_owner']) || $adminRank >= 100);
+
+if (!$admin && !$isOwner) {
     sendJSON([
         'success' => false,
-        'message' => 'You are not authorized'
+        'message' => "حساب کاربری شما (کد $adminCode) در سرور یافت نشد."
     ]);
 }
 
-$isOwner = ($adminCode === '1' || (isset($admin['rank_num']) && (int)$admin['rank_num'] >= 100));
+if (!$isOwner && $adminRank < 1) {
+    sendJSON([
+        'success' => false,
+        'message' => 'شما دسترسی مدیریت جهت آزاد کردن کاربران را ندارید.'
+    ]);
+}
+
 if (!$isOwner) {
     $db = getDB();
     $stmt = $db->prepare("SELECT admin_code FROM banned_users WHERE user_code = ? LIMIT 1");
@@ -37,7 +46,7 @@ if (!$isOwner) {
     if ($ban && !empty($ban['admin_code']) && $ban['admin_code'] !== $adminCode) {
         sendJSON([
             'success' => false,
-            'message' => 'شما فقط مجاز به آزاد کردن کاربرانی هستید که خودتان محروم کرده‌اید'
+            'message' => 'شما فقط مجاز به آزاد کردن کاربرانی هستید که توسط خودتان محروم شده‌اند.'
         ]);
     }
 }
@@ -47,13 +56,12 @@ try {
     
     sendJSON([
         'success' => true,
-        'message' => 'User unbanned'
+        'message' => 'کاربر با موفقیت آزاد شد.'
     ]);
     
 } catch (Exception $e) {
     sendJSON([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage()
+        'message' => 'خطا در آزادسازی کاربر: ' . $e->getMessage()
     ]);
 }
-?>
