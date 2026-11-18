@@ -160,6 +160,51 @@ http://your-domain.ir/api/test.php
 
 ---
 
+## 🧪 مجموعه آزمون‌های یونیت و یکپارچگی (Unit & Integration Test Suite)
+
+سیستم دارای یک فریم‌ورک اختصاصی تست یونیت بدون نیاز به ابزارهای جانبی سنگین است که تمامی مدل‌ها، پیکربندی چندمستأجره، اندپوینت‌ها و لایه‌های امنیتی را با **۲۱۷ مورد ارزیابی (Assertions)** اعتبارسنجی می‌کند:
+
+### ۱. اجرای زنده در مرورگر (Web Dashboard Runner)
+کافیست در مرورگر وارد آدرس زیر شوید:
+```
+http://your-domain.ir/api/tests/index.php
+```
+داشبورد مدرن فارسی، تمام ۶ مجموعه تست را به صورت لحظه‌ای اجرا کرده و درصد موفقیت (۱۰۰٪)، وضعیت هر تست و زمان اجرا را نمایش می‌دهد.
+
+### ۲. اجرای خط فرمان با PHP
+```bash
+php tests/run_tests.php
+```
+
+### ۳. اجرای سریع محلی با پایتون (Local Python Suite)
+```bash
+python tests/run_tests.py
+```
+خروجی تست‌های محلی:
+```text
+============================================================
+ 🧪 ChatRoom Backend Comprehensive Verification & Test Suite
+============================================================
+  ✅ PASS Suite 1: PHP Syntax & Braces Balance
+  ✅ PASS Suite 2: Multi-Tenant Host Detection & DB Routing
+  ✅ PASS Suite 3: Dynamic Image Upload & Isolation
+  ✅ PASS Suite 4: Custom Color Pipeline & Fallbacks
+  ✅ PASS Suite 5: Schema Self-Healing & Fast Composite Indexes
+  ✅ PASS Suite 6: Git & Web Security Protection Rules
+  ✅ PASS Suite 7: 30+ Core API Endpoints Contract Coverage
+------------------------------------------------------------
+📊 Results: 7/7 Passed | 0 Failed | ⚡ 217 Assertions
+🎉 ALL TEST SUITES PASSED WITH 100% SUCCESS!
+```
+
+### ۴. تست اتصال و سلامت سرورهای زنده (Live Integration Test)
+```bash
+python tests/live_integration_test.py
+```
+سرورهای طلوع چت (`chatiranian.ir`) و چت گلابی (`chatgolabi.ir`) را به صورت زنده استعلام کرده و دریافت صحیح بنر و پیام‌ها را ارزیابی می‌کند.
+
+---
+
 ## 📦 نحوه راه‌اندازی و اتصال با Git
 
 ```bash
@@ -169,3 +214,4 @@ git add .
 git commit -m "feat: unified single-core multi-tenant chat backend architecture"
 ```
 از این پس، هر بهینه‌سازی یا ویژگی جدیدی که اضافه شود، تنها در این ریپازیتوری کامیت شده و روی تمام سرورها اعمال می‌گردد.
+
