@@ -5,27 +5,27 @@ requirePost();
 
 $input = getInput();
 
-$userCode = trim($input['user_code'] ?? '');
+$userCode = trim((string)($input['user_code'] ?? ''));
 $color = isset($input['color']) ? (int)$input['color'] : -1;
-$type = trim($input['type'] ?? 'chat');
+$type = trim((string)($input['type'] ?? 'chat'));
 
 if (empty($userCode)) {
-    sendJSON(['success' => false, 'message' => 'user_code is required']);
+    sendJSON(['success' => false, 'message' => 'کد کاربر الزامی است.']);
 }
 
 try {
     if ($type === 'custom') {
-        $customColor = trim($input['custom_color'] ?? '');
+        $customColor = trim((string)($input['custom_color'] ?? ''));
         updateUserCustomColor($userCode, $customColor);
         sendJSON([
             'success' => true,
-            'message' => 'Custom color updated',
+            'message' => !empty($customColor) ? 'رنگ‌ساز کاربر با موفقیت فعال شد.' : 'رنگ‌ساز کاربر با موفقیت غیرفعال شد.',
             'user' => getUser($userCode)
         ]);
     }
 
     if ($color < 0 || $color > 50) {
-        sendJSON(['success' => false, 'message' => 'color must be between 0 and 50']);
+        sendJSON(['success' => false, 'message' => 'شماره رنگ باید بین ۰ تا ۵۰ باشد.']);
     }
 
     if ($type === 'chat') {
@@ -36,9 +36,9 @@ try {
 
     sendJSON([
         'success' => true,
-        'message' => 'Color updated',
+        'message' => 'رنگ با موفقیت ذخیره شد.',
         'user' => getUser($userCode)
     ]);
 } catch (Exception $e) {
-    sendJSON(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    sendJSON(['success' => false, 'message' => 'خطا در ثبت رنگ: ' . $e->getMessage()]);
 }

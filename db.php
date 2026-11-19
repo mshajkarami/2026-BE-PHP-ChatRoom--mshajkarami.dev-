@@ -155,10 +155,10 @@ function updateUserCustomColor($userCode, $customColor) {
     }
     try {
         if (!empty($safeCustom)) {
-            $stmt = $db->prepare("UPDATE messages SET custom_color = ?, color_num = 0 WHERE user_code = ? ORDER BY id DESC LIMIT 50");
+            $stmt = $db->prepare("UPDATE messages SET custom_color = ?, color_num = 0 WHERE user_code = ?");
             $stmt->execute([$safeCustom, $userCode]);
         } else {
-            $stmt = $db->prepare("UPDATE messages SET custom_color = '' WHERE user_code = ? ORDER BY id DESC LIMIT 50");
+            $stmt = $db->prepare("UPDATE messages SET custom_color = '' WHERE user_code = ?");
             $stmt->execute([$userCode]);
         }
     } catch (Exception $e) {}

@@ -37,16 +37,14 @@ try {
 
     if (!empty($customColor)) {
         $colorNum = 0;
+    } else if ($u && !empty($u['custom_color'])) {
+        $customColor = $u['custom_color'];
+        $colorNum = 0;
     } else if ($colorNum > 0) {
         $customColor = '';
-    } else if ($u) {
-        if (!empty($u['custom_color'])) {
-            $customColor = $u['custom_color'];
-            $colorNum = 0;
-        } else if (!empty($u['color_num'])) {
-            $colorNum = (int)$u['color_num'];
-            $customColor = '';
-        }
+    } else if ($u && !empty($u['color_num'])) {
+        $colorNum = (int)$u['color_num'];
+        $customColor = '';
     }
 
     if ($rankNum <= 0 && $u && !empty($u['rank_num'])) {
