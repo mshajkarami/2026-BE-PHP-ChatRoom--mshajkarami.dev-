@@ -20,6 +20,12 @@ if ($limit <= 0) {
 
 try {
     $db = getDB();
+
+    // پاکسازی خودکار کدهای قدیمی که تغییر یافته‌اند تا هرگز در لیست کاربران باقی نمانند
+    try {
+        $db->exec("DELETE FROM users WHERE user_code IN (SELECT old_code FROM user_code_migrations)");
+    } catch (Exception $ignored) {}
+
     $totalCount = 0;
     try {
         $stmtTotal = $db->query("SELECT COUNT(*) FROM users");

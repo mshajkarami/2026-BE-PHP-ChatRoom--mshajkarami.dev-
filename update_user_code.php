@@ -107,6 +107,8 @@ try {
         $db->prepare("DELETE FROM reports WHERE reported_code = ? OR reporter_code = ?")->execute([$oldCode, $oldCode]);
         $db->prepare("DELETE FROM deleted_conversations WHERE user_code = ? OR other_code = ?")->execute([$oldCode, $oldCode]);
 
+        recordCodeMigration($oldCode, $newCode);
+
         sendJSON([
             'success' => true,
             'message' => "کد با موفقیت ادغام شد. تمام سوابق منتقل گردید و کد $oldCode به طور کامل حذف و آزاد شد.",

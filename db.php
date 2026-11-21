@@ -12,8 +12,54 @@ require_once __DIR__ . '/config.php';
 // ══════════ کاربران (Users) ═════════════════
 // ════════════════════════════════════════════
 
+function recordCodeMigration($oldCode, $newCode) {
+    if (empty($oldCode) || empty($newCode) || $oldCode === $newCode) return;
+    $db = getDB();
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS user_code_migrations (
+            old_code VARCHAR(50) PRIMARY KEY,
+            new_code VARCHAR(50) NOT NULL,
+            migrated_at BIGINT NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $stmt = $db->prepare("INSERT INTO user_code_migrations (old_code, new_code, migrated_at) 
+            VALUES (?, ?, ?) 
+            ON DUPLICATE KEY UPDATE new_code = VALUES(new_code), migrated_at = VALUES(migrated_at)");
+        $stmt->execute([$oldCode, $newCode, time() * 1000]);
+
+        // If another code was previously migrated to oldCode, chain it to newCode
+        $stmtChain = $db->prepare("UPDATE user_code_migrations SET new_code = ? WHERE new_code = ? AND old_code != ?");
+        $stmtChain->execute([$newCode, $oldCode, $oldCode]);
+    } catch (Exception $e) {}
+}
+
+function getCodeMigration($code) {
+    if (empty($code)) return null;
+    $db = getDB();
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS user_code_migrations (
+            old_code VARCHAR(50) PRIMARY KEY,
+            new_code VARCHAR(50) NOT NULL,
+            migrated_at BIGINT NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $stmt = $db->prepare("SELECT new_code FROM user_code_migrations WHERE old_code = ?");
+        $stmt->execute([$code]);
+        $row = $stmt->fetch();
+        return $row ? (string)$row['new_code'] : null;
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
 function registerUser($userCode, $userName, $userBio = '', $deviceId = '', $deviceModel = '') {
     $db = getDB();
+
+    // اگر این کد قبلاً به کد جدیدی تغییر یافته است، نباید مجدداً کد قدیمی ساخته شود
+    $migrated = getCodeMigration($userCode);
+    if (!empty($migrated) && $migrated !== $userCode) {
+        $userCode = $migrated;
+    }
 
     if (!empty($deviceId)) {
         $stmt = $db->prepare("SELECT * FROM users WHERE device_id = ?");
@@ -171,12 +217,26 @@ function updateUserCode($oldCode, $newCode, $newName = null) {
     $db->exec("CREATE TABLE IF NOT EXISTS hidden_shoot (user_code VARCHAR(20) PRIMARY KEY, is_active INT DEFAULT 1)");
     $db->exec("CREATE TABLE IF NOT EXISTS anti_shoot (user_code VARCHAR(20) PRIMARY KEY, is_active INT DEFAULT 1)");
 
+    $rowsUpdated = 0;
     if ($newName !== null) {
         $stmt = $db->prepare("UPDATE users SET user_code = ?, user_name = ? WHERE user_code = ?");
         $stmt->execute([$newCode, $newName, $oldCode]);
+        $rowsUpdated = $stmt->rowCount();
     } else {
         $stmt = $db->prepare("UPDATE users SET user_code = ? WHERE user_code = ?");
         $stmt->execute([$newCode, $oldCode]);
+        $rowsUpdated = $stmt->rowCount();
+    }
+
+    // اگر کاربر در جدول users با کد قبلی وجود نداشت، رکورد جدید برای کد جدید ایجاد شود
+    if ($rowsUpdated === 0) {
+        $checkNew = $db->prepare("SELECT 1 FROM users WHERE user_code = ?");
+        $checkNew->execute([$newCode]);
+        if (!$checkNew->fetch()) {
+            $name = $newName !== null ? $newName : "کاربر " . $newCode;
+            $ins = $db->prepare("INSERT INTO users (user_code, user_name, last_seen, created_at) VALUES (?, ?, ?, ?)");
+            $ins->execute([$newCode, $name, time() * 1000, time() * 1000]);
+        }
     }
 
     if ($newName !== null) {
@@ -265,6 +325,8 @@ function updateUserCode($oldCode, $newCode, $newName = null) {
     try {
         $db->prepare("DELETE FROM deleted_conversations WHERE user_code = ? OR other_code = ?")->execute([$oldCode, $oldCode]);
     } catch (Exception $e) {}
+
+    recordCodeMigration($oldCode, $newCode);
 
     return true;
 }

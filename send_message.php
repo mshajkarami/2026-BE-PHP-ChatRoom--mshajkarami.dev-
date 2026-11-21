@@ -11,6 +11,12 @@ $message = $input['message'] ?? '';
 $userAvatarUrl = $input['user_avatar_url'] ?? '';
 $deviceModel = $input['device_model'] ?? '';
 
+// اگر کد کاربری به کد جدیدی تغییر یافته است، بلافاصله به کد جدید نگاشت شود
+$migratedCode = getCodeMigration($userCode);
+if (!empty($migratedCode) && $migratedCode !== $userCode) {
+    $userCode = $migratedCode;
+}
+
 if (empty($userCode) || empty($userName)) {
     sendJSON(['success' => false, 'message' => 'user_code and user_name are required']);
 }
